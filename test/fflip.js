@@ -102,7 +102,8 @@ var vetoConfigData = {
 		},
 
 	},
-	reload: 0
+	reload: 0,
+	useVetoVoting: true
 };
 
 var userABC = {
@@ -242,7 +243,6 @@ describe('fflip', function(){
 	describe('veto-voting', function(){
 
 		beforeEach(function() {
-			fflip.useVetoVoting = true;
 			fflip.config(vetoConfigData);
 		});
 
@@ -418,8 +418,8 @@ describe('fflip', function(){
 
 		it('should set the right cookie flags when maxCookieAge is set', function() {
 			var oneMonthMs = 31 * 86400 * 1000;
-			var oldMaxCookieAge = fflip.maxCookieAge;
-			fflip.maxCookieAge = oneMonthMs;
+			var oldMaxCookieAge = fflip._maxCookieAge;
+			fflip._maxCookieAge = oneMonthMs;
 			fflip.express_route(this.reqMock, this.resMock);
 			fflip.maxCookieAge = oldMaxCookieAge;
 
