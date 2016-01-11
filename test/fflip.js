@@ -55,6 +55,57 @@ var configData = {
 	reload: 0
 };
 
+var vetoConfigData = {
+	criteria: {
+		votesYes1: function(user) {
+			return true;
+		},
+		votesYes2: function(user) {
+			return true;
+		},
+		votesNo1: function(user) {
+			return false;
+		},
+		votesNo2: function(user) {
+			return false;
+		},
+		abstains1: function(user) {
+			return null;
+		},
+		abstains2: function(user) {
+			return null;
+		}
+	},
+	features: {
+		fEmpty: {},
+		fAllYes: {
+			name: 'fAllYes',
+			criteria: {
+				votesYes1: true,
+				votesYes2: true,
+			}
+		},
+		fSomeNo: {
+			name: 'fSomeNo',
+			criteria: {
+				votesYes1: true,
+				votesNo1: true,
+				abstains1: true,
+			}
+		},
+		fAllAbstain: {
+			name: 'fAllAbstain',
+			criteria: {
+				abstains1: true,
+				abstains2: true,
+			}
+		},
+
+	},
+	reload: 0,
+	useVetoVoting: true
+};
+
 var userABC = {
 	flag: 'abc'
 };
@@ -189,9 +240,31 @@ describe('fflip', function(){
 
 	});
 
+	describe('veto-voting', function(){
+
+		beforeEach(function() {
+			fflip.config(vetoConfigData);
+		});
+
+		afterEach(function() {
+			fflip.useVetoVoting = false;
+		});
+
+		it('should return an object of features for a user', function(){
+			var featuresABC = fflip.userFeatures(userABC);
+			assert.equal(featuresABC.fEmpty, false);
+			assert.equal(featuresABC.fAllYes, true);
+			assert.equal(featuresABC.fSomeNo, false);
+			assert.equal(featuresABC.fAllAbstain, false);
+		});
+
+	});
+
 	describe('express middleware', function(){
 
 		beforeEach(function() {
+			fflip.config(configData);
+
 			this.reqMock = {
 				cookies: {
 					fflip: {
@@ -345,8 +418,8 @@ describe('fflip', function(){
 
 		it('should set the right cookie flags when maxCookieAge is set', function() {
 			var oneMonthMs = 31 * 86400 * 1000;
-			var oldMaxCookieAge = fflip.maxCookieAge;
-			fflip.maxCookieAge = oneMonthMs;
+			var oldMaxCookieAge = fflip._maxCookieAge;
+			fflip._maxCookieAge = oneMonthMs;
 			fflip.express_route(this.reqMock, this.resMock);
 			fflip.maxCookieAge = oldMaxCookieAge;
 
